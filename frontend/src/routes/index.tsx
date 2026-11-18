@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { DemoBadge } from "@/components/site/Layout";
 import { useDocumentTitle, useLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -35,7 +34,6 @@ function Index() {
         <div aria-hidden="true" className="ks-hero-overlay pointer-events-none absolute inset-0" />
         <div className="relative z-10 mx-auto max-w-6xl px-4 py-14 md:py-20 lg:py-24">
           <div className="max-w-2xl">
-            <DemoBadge className="text-[#fde68a]">{t.home.badge}</DemoBadge>
             <h1 className="font-display mt-3 max-w-xl text-4xl font-bold leading-[1.15] tracking-tight text-white text-balance md:text-5xl">
               {t.home.heroTitle}
             </h1>
