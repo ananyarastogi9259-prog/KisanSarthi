@@ -1,0 +1,27 @@
+synthetic_farmer_id,district,village,khasra_number,land_area_acres,land_type,ownership_type,primary_crop,farmer_category,irrigation_status,annual_income_inr,age,gender,aadhaar_verified_demo,existing_loan_demo,land_document_available_demo
+UP-FARM-001,Meerut,Kalyanpur (Demo),142/1,1.85,Irrigated Agricultural,Individual Owner,Wheat,Marginal,Canal & Tube well,85000,38,Male,true,false,true
+UP-FARM-002,Mathura,Govardhanpur (Demo),205/3,3.20,Irrigated Agricultural,Individual Owner,Mustard,Small,Tube well,140000,45,Female,true,true,true
+UP-FARM-003,Agra,Fatehpur (Demo),88/2,0.95,Semi-Irrigated Agricultural,Joint / Ancestral,Potato,Marginal,Borewell,62000,29,Male,true,false,true
+UP-FARM-004,Aligarh,Haridaspur (Demo),314/1,7.50,Irrigated Agricultural,Individual Owner,Wheat,Large,Canal & Tube well,480000,56,Male,true,true,true
+UP-FARM-005,Lucknow,Mohanpur (Demo),59/4,2.10,Multi-crop Agricultural,Individual Owner,Vegetables,Marginal,Solar Pump,110000,34,Female,true,false,true
+UP-FARM-006,Varanasi,Shivpur (Demo),118/2,1.20,Irrigated Agricultural,Sharecropper / Leaseholder,Paddy (Rice),Marginal,Canal,54000,26,Male,false,false,false
+UP-FARM-007,Prayagraj,Naini Demo,245/1,4.80,Rainfed / Dryland,Individual Owner,Pulses (Gram),Small,Rainfed,98000,62,Male,true,true,true
+UP-FARM-008,Gorakhpur,Chauri Demo,77/3,1.60,Irrigated Agricultural,Joint / Ancestral,Sugarcane,Marginal,Tube well,92000,41,Female,true,false,true
+UP-FARM-009,Jhansi,Babina Demo,163/1,12.00,Rainfed / Dryland,Individual Owner,Soybean,Large,Rainfed,350000,52,Male,true,true,true
+UP-FARM-010,Bareilly,Faridpur Demo,94/5,2.40,Irrigated Agricultural,Individual Owner,Wheat,Marginal,Canal,125000,31,Male,true,false,true
+UP-FARM-011,Ayodhya,Bikapur Demo,201/2,3.80,Irrigated Agricultural,Individual Owner,Paddy (Rice),Small,Tube well,175000,48,Female,true,true,true
+UP-FARM-012,Kanpur Nagar,Bilhaur Demo,33/1,0.75,Semi-Irrigated Agricultural,Tenant Farmer,Maize,Marginal,Tube well,45000,23,Male,false,false,false
+UP-FARM-013,Meerut,Mawana Demo,219/4,6.20,Irrigated Agricultural,Individual Owner,Sugarcane,Medium,Canal & Tube well,390000,59,Male,true,true,true
+UP-FARM-014,Mathura,Chhata Demo,155/2,1.90,Irrigated Agricultural,Individual Owner,Barley,Marginal,Tube well,88000,36,Male,true,false,true
+UP-FARM-015,Agra,Kheragarh Demo,42/3,14.50,Semi-Irrigated Agricultural,Individual Owner,Mustard,Large,Borewell,720000,64,Male,true,false,true
+UP-FARM-016,Aligarh,Atrauli Demo,280/1,2.30,Irrigated Agricultural,Joint / Ancestral,Maize,Marginal,Canal,105000,27,Female,true,false,true
+UP-FARM-017,Lucknow,Malihabad Demo,104/2,4.20,Orchard / Horticulture,Individual Owner,Mango / Fruits,Small,Drip Irrigation,260000,50,Male,true,true,true
+UP-FARM-018,Varanasi,Pindra Demo,66/1,0.50,Irrigated Agricultural,Sharecropper / Leaseholder,Vegetables,Marginal,Tube well,38000,21,Female,false,false,false
+UP-FARM-019,Prayagraj,Phulpur Demo,189/3,3.50,Irrigated Agricultural,Individual Owner,Wheat,Small,Canal,160000,43,Male,true,false,true
+UP-FARM-020,Gorakhpur,Sahjanwa Demo,312/2,1.75,Rainfed / Dryland,Joint / Ancestral,Paddy (Rice),Marginal,Rainfed,78000,68,Male,true,true,true
+UP-FARM-021,Jhansi,Mauranipur Demo,85/4,5.50,Rainfed / Dryland,Individual Owner,Pulses (Arhar),Medium,Rainfed,190000,55,Female,true,false,true
+UP-FARM-022,Bareilly,Baheri Demo,172/1,8.00,Irrigated Agricultural,Individual Owner,Sugarcane,Large,Canal & Tube well,510000,61,Male,true,true,true
+UP-FARM-023,Ayodhya,Rudauli Demo,99/2,2.00,Irrigated Agricultural,Individual Owner,Wheat,Marginal,Tube well,115000,39,Male,true,false,true
+UP-FARM-024,Kanpur Nagar,Ghatampur Demo,141/3,3.10,Semi-Irrigated Agricultural,Individual Owner,Mustard,Small,Tube well,145000,47,Male,true,true,true
+UP-FARM-025,Meerut,Sardhana Demo,53/1,0.80,Irrigated Agricultural,Tenant Farmer,Vegetables,Marginal,Solar Pump,52000,25,Female,true,false,false
+

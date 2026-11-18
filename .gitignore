@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+dist/
+dist-ssr/
+.output/
+.vinxi/
+.tanstack/
+.nitro/
+.data/
+
+# Hosting & Vercel deployment builds
+.vercel/
+*/.vercel/
+
+# AI Studio local development caches and temporary storage
+.aistudio/
+*/.aistudio/
+
+# Local scratch scripts and intermediate testing files
+scratch/
+*/scratch/
+
+# Environment files and credentials (NEVER COMMIT)
+.env
+.env.*
+!.env.example
+*.local
+
+# System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
