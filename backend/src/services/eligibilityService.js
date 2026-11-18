@@ -240,7 +240,7 @@ export class EligibilityService {
    */
   async seedVerifiedRules(client = null) {
     const supabaseUrl = process.env.SUPABASE_URL
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPAYBASE_SERVICE_ROLE_KEY
 
     let adminClient = client
     if (!adminClient) {

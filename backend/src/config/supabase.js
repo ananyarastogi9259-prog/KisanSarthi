@@ -92,7 +92,7 @@ export const getAuthenticatedClient = (token) => {
  * @returns {import('@supabase/supabase-js').SupabaseClient}
  */
 export const getServiceClient = () => {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPAYBASE_SERVICE_ROLE_KEY
   if (!urlIsValid || !serviceKey) {
     throw new Error('Supabase service role client is not configured.')
   }

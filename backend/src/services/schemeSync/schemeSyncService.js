@@ -29,7 +29,7 @@ export class SchemeSyncService {
     // Use administrative client (service-role key) for backend sync if available,
     // otherwise fallback to shared client
     const supabaseUrl = process.env.SUPABASE_URL
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPAYBASE_SERVICE_ROLE_KEY
     if (supabaseUrl && serviceRoleKey) {
       this.adminClient = createClient(supabaseUrl, serviceRoleKey, {
         auth: { persistSession: false, autoRefreshToken: false },
