@@ -155,19 +155,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (name: string, email: string, password: string): Promise<AuthActionResult> => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+        const rawUrl =
+          (import.meta.env.VITE_API_URL as string | undefined) ||
+          "https://kisan-sarthi-ananyarastogi9259-progs-projects.vercel.app/api";
+        const apiUrl = rawUrl
+          .replace(/kisan-sarthi-[a-z0-9]+-ananyarastogi/i, "kisan-sarthi-ananyarastogi")
+          .replace(/\/+$/, "");
+
         const cleanEmail = email.trim();
         const cleanName = name.trim();
 
         // 1. Register & auto-confirm via backend API (bypasses Supabase email rate limits)
         let backendSucceeded = false;
         let serverErrorMsg = "";
+        let statusCode = 0;
         try {
           const res = await fetch(`${apiUrl}/auth/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: cleanName, email: cleanEmail, password }),
           });
+          statusCode = res.status;
           const json = await res.json().catch(() => null);
           if (res.ok && json?.success) {
             backendSucceeded = true;
@@ -178,9 +186,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.warn("Backend register API unreachable, attempting direct Supabase signup:", e);
         }
 
-        // If backend returned a specific validation error, surface it directly to the user
-        if (!backendSucceeded && serverErrorMsg) {
+        // Only surface user-facing validation errors (like invalid password or name)
+        // If it was a backend server configuration error (e.g. 500 or service role), fall back to direct Supabase signup
+        const isServerConfigError =
+          statusCode >= 500 || serverErrorMsg.toLowerCase().includes("service role");
+
+        if (!backendSucceeded && serverErrorMsg && !isServerConfigError) {
           return { ok: false, code: "invalid_input", message: serverErrorMsg };
+        }
+
+        // If backend could not register, perform direct Supabase registration as fallback
+        if (!backendSucceeded) {
+          const { error: signUpError } = await supabase.auth.signUp({
+            email: cleanEmail,
+            password,
+            options: { data: { full_name: cleanName } },
+          });
+          if (signUpError) {
+            return { ok: false, code: "invalid_input", message: signUpError.message };
+          }
         }
 
         // 2. Sign in to obtain active Supabase JWT session

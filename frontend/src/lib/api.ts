@@ -12,10 +12,17 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-const API_BASE_URL = (
-  (typeof import.meta !== 'undefined' && import.meta.env?.['VITE_API_URL']) ||
-  'http://localhost:5000/api'
-).replace(/\/+$/, '');
+function resolveApiBaseUrl(): string {
+  const envUrl =
+    (typeof import.meta !== 'undefined' && import.meta.env?.['VITE_API_URL']) ||
+    'https://kisan-sarthi-ananyarastogi9259-progs-projects.vercel.app/api';
+
+  return envUrl
+    .replace(/kisan-sarthi-[a-z0-9]+-ananyarastogi/i, 'kisan-sarthi-ananyarastogi')
+    .replace(/\/+$/, '');
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 export interface RequestOptions extends Omit<RequestInit, 'body'> {
   params?: Record<string, string | number | boolean | undefined | null>;
