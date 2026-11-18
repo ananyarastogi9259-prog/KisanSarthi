@@ -57,6 +57,10 @@ let port = null
 let serviceClient = null
 let publicClient = null
 
+// Start ephemeral Express server immediately so port is always initialized
+server = app.listen(0)
+port = server.address().port
+
 let farmerA = null // Eligible farmer
 let tokenA = null
 
@@ -250,9 +254,7 @@ try {
   })
   await eligibilityService.evaluateSchemeForFarmer(cClient, farmerC.id, PM_KISAN_ID)
 
-  // 4. Start ephemeral Express server
-  server = app.listen(0)
-  port = server.address().port
+  // 4. Ephemeral Express server is already listening on port
 } catch (setupErr) {
   console.error('Fatal test setup error:', setupErr.message)
 }

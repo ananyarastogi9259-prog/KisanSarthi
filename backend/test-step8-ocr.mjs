@@ -78,6 +78,10 @@ let testUserB = null
 let tokenA = null
 let tokenB = null
 
+// Start ephemeral Express server immediately so port is always initialized
+server = app.listen(0)
+port = server.address().port
+
 // Tracking resources for teardown
 const uploadedDocIds = []
 const createdLandRecordIds = []
@@ -140,9 +144,7 @@ try {
   })
   tokenB = signB.session.access_token
 
-  // 5. Start ephemeral Express server
-  server = app.listen(0)
-  port = server.address().port
+  // 5. Express server is already listening on port
 } catch (setupErr) {
   console.error('Fatal test setup error:', setupErr.message)
 }

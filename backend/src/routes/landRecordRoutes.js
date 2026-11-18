@@ -27,6 +27,8 @@ import {
   uploadLandRecordDocument,
   confirmLandRecord,
   getLandRecordDocument,
+  getSignedUploadUrl,
+  processUploadedStorage,
 } from '../controllers/landRecordController.js'
 
 const router = express.Router()
@@ -80,6 +82,12 @@ router.get('/synthetic-up', getSyntheticUPRecords)
 router.post('/synthetic-up/import', importSyntheticUPRecord)
 
 // ── Document Upload & OCR Endpoints ──────────────────────────
+// POST /api/land-records/signed-upload-url — Generates short-lived signed upload URL (bypasses Vercel 4.5MB limit)
+router.post('/signed-upload-url', getSignedUploadUrl)
+
+// POST /api/land-records/process-uploaded-storage — Runs OCR and creates draft from signed-upload file in private bucket
+router.post('/process-uploaded-storage', processUploadedStorage)
+
 // POST /api/land-records/upload — Upload land document (photo/PDF), run OCR, create draft record
 router.post('/upload', handleFileUpload, uploadLandRecordDocument)
 

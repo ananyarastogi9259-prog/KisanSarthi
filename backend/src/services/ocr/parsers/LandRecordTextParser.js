@@ -150,17 +150,18 @@ export class LandRecordTextParser {
     }
 
     // ── 7. Ownership & Category Matching ─────────────────────────
+    const lowerText = sanitized.toLowerCase()
     if (
-      sanitized.includes('संयुक्त') ||
-      sanitized.includes('joint') ||
-      sanitized.includes('सह-खातेदार')
+      lowerText.includes('संयुक्त') ||
+      lowerText.includes('joint') ||
+      lowerText.includes('सह-खातेदार')
     ) {
       ownershipType = 'joint'
     } else if (
-      sanitized.includes('पट्टेदार') ||
-      sanitized.includes('किराएदार') ||
-      sanitized.includes('tenant') ||
-      sanitized.includes('lease')
+      lowerText.includes('पट्टेदार') ||
+      lowerText.includes('किराएदार') ||
+      lowerText.includes('tenant') ||
+      lowerText.includes('lease')
     ) {
       ownershipType = 'tenant'
     } else {
@@ -169,17 +170,17 @@ export class LandRecordTextParser {
 
     // Tenure category (UP Bhulekh 1-क: संक्रमणीय भूमिधर = cultivable agricultural ownership)
     if (
-      sanitized.includes('संक्रमणीय') ||
-      sanitized.includes('1-क') ||
-      sanitized.includes('कृषि') ||
-      sanitized.includes('agricultural')
+      lowerText.includes('संक्रमणीय') ||
+      lowerText.includes('1-क') ||
+      lowerText.includes('कृषि') ||
+      lowerText.includes('agricultural')
     ) {
       landType = 'agricultural_cultivable'
     } else if (
-      sanitized.includes('गैर-कृषि') ||
-      sanitized.includes('आबादी') ||
-      sanitized.includes('residential') ||
-      sanitized.includes('commercial')
+      lowerText.includes('गैर-कृषि') ||
+      lowerText.includes('आबादी') ||
+      lowerText.includes('residential') ||
+      lowerText.includes('commercial')
     ) {
       landType = 'commercial'
     }

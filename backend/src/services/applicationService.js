@@ -251,7 +251,7 @@ export class ApplicationService {
       const isComplete = Boolean(checklistData?.summary?.is_complete)
       if (!isComplete && evalStatus !== 'eligible') {
         const err = new Error(
-          `Cannot create application: Please verify all required documents first (${checklistData?.summary?.total_missing || 0} missing, ${checklistData?.summary?.total_needing_verification || 0} pending verification).`
+          `Cannot create application: Scheme eligibility is "needs_verification" and requires completing verification checkpoints before applying (${checklistData?.summary?.total_missing || 0} missing, ${checklistData?.summary?.total_needing_verification || 0} pending verification).`
         )
         err.statusCode = 400
         err.details = latestEval?.reasons || {

@@ -304,6 +304,10 @@ let testUserB = null
 let tokenA = null
 let tokenB = null
 
+// Start ephemeral Express server immediately so port is always initialized
+server = app.listen(0)
+port = server.address().port
+
 try {
   serviceClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
   publicClient = createClient(SUPABASE_URL, SUPABASE_KEY)
@@ -388,9 +392,7 @@ try {
   })
   tokenB = signB.session.access_token
 
-  // Start ephemeral Express app
-  server = app.listen(0)
-  port = server.address().port
+  // Ephemeral Express app is already listening on port
 } catch (setupErr) {
   console.error('Fatal test setup error:', setupErr.message)
 }

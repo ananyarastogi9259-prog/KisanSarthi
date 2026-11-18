@@ -716,3 +716,89 @@ export const getLandRecordDocument = async (req, res, next) => {
     next(err)
   }
 }
+
+/**
+ * POST /api/land-records/signed-upload-url
+ * Generates short-lived signed upload URL for direct client-to-Supabase upload.
+ * Solves Vercel's 4.5MB serverless request body limitation.
+ */
+export const getSignedUploadUrl = async (req, res, next) => {
+  try {
+    const userId = req.user.id
+    const userClient = req.supabase
+    const { file_name, mime_type, file_size } = req.body || {}
+
+    if (!mime_type) {
+      return res.status(400).json({
+        success: false,
+        message: 'mime_type is required to generate a signed upload URL.',
+      })
+    }
+
+    const result = await landRecordOcrService.createSignedUploadUrl({
+      userClient,
+      farmerId: userId,
+      fileName: file_name,
+      mimeType: mime_type,
+      fileSize: file_size,
+    })
+
+    return res.status(200).json({
+      success: true,
+      message: 'Signed upload URL generated successfully.',
+      data: result,
+    })
+  } catch (err) {
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({
+        success: false,
+        message: err.message,
+      })
+    }
+    next(err)
+  }
+}
+
+/**
+ * POST /api/land-records/process-uploaded-storage
+ * Runs OCR and creates draft land record for an already-uploaded document in private storage.
+ */
+export const processUploadedStorage = async (req, res, next) => {
+  try {
+    const userId = req.user.id
+    const userClient = req.supabase
+    const { storage_path, file_name, document_type = 'khatauni', ocr_provider } = req.body || {}
+
+    if (!storage_path) {
+      return res.status(400).json({
+        success: false,
+        message: 'storage_path is required.',
+      })
+    }
+
+    const result = await landRecordOcrService.processUploadedStorageDocument({
+      userClient,
+      farmerId: userId,
+      storagePath: storage_path,
+      fileName: file_name,
+      documentType: document_type,
+      options: {
+        ocrProvider: ocr_provider,
+      },
+    })
+
+    return res.status(201).json({
+      success: true,
+      message: 'Document processed successfully from secure storage. Please review draft.',
+      data: result,
+    })
+  } catch (err) {
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({
+        success: false,
+        message: err.message,
+      })
+    }
+    next(err)
+  }
+}

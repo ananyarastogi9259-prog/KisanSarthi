@@ -447,6 +447,183 @@ export class LandRecordOcrService {
       storage_path: doc.storage_path,
     }
   }
+
+  /**
+   * Generates a short-lived signed upload URL for direct client-to-Supabase upload.
+   * Completely bypasses Vercel's 4.5MB request payload limit.
+   */
+  async createSignedUploadUrl({ userClient, farmerId, fileName, mimeType, fileSize }) {
+    if (!userClient) throw new Error('Supabase client is not initialized.')
+    if (!farmerId || !UUID_REGEX.test(farmerId)) {
+      const err = new Error('Invalid farmer ID.')
+      err.statusCode = 400
+      throw err
+    }
+
+    const cleanMime = (mimeType || '').toLowerCase().trim()
+    if (!ALLOWED_MIME_TYPES[cleanMime]) {
+      const err = new Error(
+        `Unsupported file format "${mimeType}". Allowed formats: JPEG, PNG, WEBP, and PDF.`
+      )
+      err.statusCode = 400
+      throw err
+    }
+
+    if (fileSize && fileSize > MAX_FILE_SIZE_BYTES) {
+      const err = new Error('File size exceeds maximum allowable limit of 10MB.')
+      err.statusCode = 400
+      throw err
+    }
+
+    const extension = ALLOWED_MIME_TYPES[cleanMime] || '.bin'
+    const documentId = crypto.randomUUID()
+    const safeFileName = path.basename(fileName || `document${extension}`).slice(0, 255)
+    const storagePath = `${farmerId}/${documentId}${extension}`
+
+    const { data, error } = await userClient.storage
+      .from('land-records')
+      .createSignedUploadUrl(storagePath)
+
+    if (error || !data?.signedUrl) {
+      throw new Error(`Failed to generate signed upload URL: ${error?.message}`)
+    }
+
+    return {
+      signed_upload_url: data.signedUrl,
+      token: data.token,
+      storage_path: storagePath,
+      document_id: documentId,
+      file_name: safeFileName,
+      mime_type: cleanMime,
+      expires_in: 900,
+    }
+  }
+
+  /**
+   * Processes a document already uploaded to private Supabase Storage via signed URL.
+   * Runs OCR, text extraction, registers in `documents`, and creates a draft land record.
+   */
+  async processUploadedStorageDocument({
+    userClient,
+    farmerId,
+    storagePath,
+    fileName,
+    documentType = 'khatauni',
+    options = {},
+  }) {
+    if (!userClient) throw new Error('Supabase client is not initialized.')
+    if (!farmerId || !UUID_REGEX.test(farmerId)) {
+      const err = new Error('Invalid farmer ID.')
+      err.statusCode = 400
+      throw err
+    }
+    if (!storagePath || !storagePath.startsWith(`${farmerId}/`)) {
+      const err = new Error('Invalid storage path or cross-tenant access denied.')
+      err.statusCode = 403
+      throw err
+    }
+
+    // 1. Download file buffer from private bucket
+    const { data: blob, error: downloadError } = await userClient.storage
+      .from('land-records')
+      .download(storagePath)
+
+    if (downloadError || !blob) {
+      const err = new Error(
+        `Failed to retrieve uploaded document from storage: ${downloadError?.message}`
+      )
+      err.statusCode = 404
+      throw err
+    }
+
+    const fileBuffer = Buffer.from(await blob.arrayBuffer())
+    const mimeType = blob.type || (storagePath.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg')
+
+    // 2. Validate file buffer
+    LandRecordOcrService.validateUpload(fileBuffer, mimeType)
+
+    // 3. Register document in `documents` table
+    const safeFileName = path.basename(fileName || path.basename(storagePath)).slice(0, 255)
+    const documentId = crypto.randomUUID()
+
+    const { data: docRecord, error: docError } = await userClient
+      .from('documents')
+      .insert({
+        id: documentId,
+        farmer_id: farmerId,
+        document_type: documentType,
+        file_name: safeFileName,
+        storage_path: storagePath,
+      })
+      .select('id, document_type, file_name, storage_path, created_at')
+      .single()
+
+    if (docError) {
+      throw new Error(`Failed to register document record: ${docError.message}`)
+    }
+
+    // 4. Run OCR adapter
+    const ocrAdapter = getOcrAdapter(options.ocrProvider)
+    const ocrResult = await ocrAdapter.extractText(fileBuffer, mimeType, options)
+
+    // 5. Parse extracted text
+    const parsedFields = LandRecordTextParser.parse(ocrResult.rawText)
+
+    // 6. Create draft land record
+    const draftLandRecord = {
+      farmer_id: farmerId,
+      survey_number: parsedFields.survey_number || null,
+      land_area: parsedFields.land_area !== null ? parsedFields.land_area : null,
+      area_unit: parsedFields.area_unit || 'acres',
+      state: parsedFields.state || 'Uttar Pradesh',
+      district: parsedFields.district || null,
+      village: parsedFields.village || null,
+      record_type: documentType,
+      verification_status: 'pending',
+      extracted_data: {
+        ownership_type: parsedFields.ownership_type || 'individual',
+        land_type: parsedFields.land_type || 'agricultural_cultivable',
+        khata_number: parsedFields.khata_number,
+        holder_name: parsedFields.holder_name,
+        confidence: parsedFields.confidence,
+        raw_text_snippet: parsedFields.raw_text_snippet,
+        ocr_provider: ocrResult.provider,
+        ocr_execution_ms: ocrResult.executionMs,
+        is_empty_or_poor_quality: parsedFields.is_empty,
+        confirmation_status: 'unconfirmed',
+      },
+    }
+
+    const { data: recordData, error: recordError } = await userClient
+      .from('land_records')
+      .insert(draftLandRecord)
+      .select(
+        'id, farmer_id, survey_number, land_area, area_unit, state, district, village, record_type, extracted_data, verification_status, created_at'
+      )
+      .single()
+
+    if (recordError) {
+      throw new Error(`Failed to create draft land record: ${recordError.message}`)
+    }
+
+    // Link document to land record
+    await userClient
+      .from('documents')
+      .update({ land_record_id: recordData.id })
+      .eq('id', docRecord.id)
+
+    return {
+      land_record_id: recordData.id,
+      document_id: docRecord.id,
+      storage_path: storagePath,
+      bucket: 'land-records',
+      extracted_fields: parsedFields,
+      ocr_provider: ocrResult.provider,
+      status: 'draft',
+      confirmation_status: 'unconfirmed',
+      land_record: recordData,
+    }
+  }
 }
 
 const landRecordOcrService = new LandRecordOcrService()
