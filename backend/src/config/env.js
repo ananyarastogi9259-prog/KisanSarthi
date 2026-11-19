@@ -11,5 +11,13 @@ const envPath = path.resolve(__dirname, '../../.env')
 
 dotenv.config({ path: envPath })
 
+// Normalize potential typos in environment variable names
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPAYBASE_SERVICE_ROLE_KEY) {
+  process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPAYBASE_SERVICE_ROLE_KEY
+}
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.VITE_SUPABASE_SERVICE_ROLE_KEY) {
+  process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+}
+
 export default process.env
 

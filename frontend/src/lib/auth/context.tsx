@@ -189,7 +189,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Only surface user-facing validation errors (like invalid password or name)
         // If it was a backend server configuration error (e.g. 500 or service role), fall back to direct Supabase signup
         const isServerConfigError =
-          statusCode >= 500 || serverErrorMsg.toLowerCase().includes("service role");
+          statusCode >= 500 ||
+          serverErrorMsg.toLowerCase().includes("service role") ||
+          serverErrorMsg.toLowerCase().includes("not configured") ||
+          serverErrorMsg.toLowerCase().includes("supabase client") ||
+          serverErrorMsg.toLowerCase().includes("internal server error");
 
         if (!backendSucceeded && serverErrorMsg && !isServerConfigError) {
           return { ok: false, code: "invalid_input", message: serverErrorMsg };
@@ -203,6 +207,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             options: { data: { full_name: cleanName } },
           });
           if (signUpError) {
+            const msg = (signUpError.message || "").toLowerCase();
+            if (msg.includes("already registered") || msg.includes("user already exists")) {
+              return { ok: false, code: "email_taken", message: "This email address is already registered. Please log in." };
+            }
             return { ok: false, code: "invalid_input", message: signUpError.message };
           }
         }
@@ -230,43 +238,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { ok: true, user: authUser };
         }
 
-        // If backend confirmed the account but sign-in still fails, guide user to login page
-        if (backendSucceeded) {
-          return {
-            ok: false,
-            code: "confirmation_required",
-            message: "Account created! Please go to Login and sign in with your email and password.",
-          };
-        }
-
-        // 3. Fallback direct Supabase signUp if backend was bypassed
-        if (!backendSucceeded) {
-          const { data, error } = await supabase.auth.signUp({
-            email: cleanEmail,
-            password,
-            options: { data: { full_name: cleanName } },
-          });
-
-          if (error) {
-            const msg = (error.message || "").toLowerCase();
-            if (msg.includes("already registered") || msg.includes("user already exists")) {
-              return { ok: false, code: "email_taken" };
-            }
-            return { ok: false, code: "network_error" };
-          }
-
-          if (data?.user && data?.session) {
-            const authUser = mapSupabaseUser(data.user)!;
-            setUser(authUser);
-            return { ok: true, user: authUser };
-          }
-        }
-
-        if (signInError) {
-          return { ok: false, code: "invalid_credentials" };
-        }
-
-        return { ok: false, code: "network_error" };
+        // If account was created, guide user to login
+        return {
+          ok: false,
+          code: "confirmation_required",
+          message: "Account created successfully! Please click Login to sign in with your email and password.",
+        };
       } catch (err) {
         console.error("Register exception:", err);
         return { ok: false, code: "network_error" };

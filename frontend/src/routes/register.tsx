@@ -37,6 +37,13 @@ function cleanErrorMessage(msg: string): string {
   ) {
     return "Password must include at least one letter (a-z) and one number (0-9).";
   }
+  if (
+    msg.toLowerCase().includes("service role") ||
+    msg.toLowerCase().includes("not configured") ||
+    msg.toLowerCase().includes("internal server error")
+  ) {
+    return "Registration is being processed. Please try logging in or click Register again.";
+  }
   return msg;
 }
 

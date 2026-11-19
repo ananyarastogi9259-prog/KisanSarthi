@@ -85,6 +85,14 @@ export const getAuthenticatedClient = (token) => {
   })
 }
 
+export const isServiceRoleConfigured = () => {
+  const serviceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPAYBASE_SERVICE_ROLE_KEY ||
+    process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+  return Boolean(urlIsValid && serviceKey && serviceKey.trim().length > 0)
+}
+
 /**
  * Creates an administrative Supabase client using SUPABASE_SERVICE_ROLE_KEY.
  * Bypasses RLS for secure administrative tasks (e.g. auto-confirming farmer accounts).
@@ -92,7 +100,11 @@ export const getAuthenticatedClient = (token) => {
  * @returns {import('@supabase/supabase-js').SupabaseClient}
  */
 export const getServiceClient = () => {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPAYBASE_SERVICE_ROLE_KEY
+  const serviceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPAYBASE_SERVICE_ROLE_KEY ||
+    process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+
   if (!urlIsValid || !serviceKey) {
     throw new Error('Supabase service role client is not configured.')
   }
