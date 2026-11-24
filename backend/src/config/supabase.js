@@ -106,7 +106,8 @@ export const getServiceClient = () => {
     process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
 
   if (!urlIsValid || !serviceKey) {
-    throw new Error('Supabase service role client is not configured.')
+    console.warn('Supabase service role client is not configured; administrative features will use fallback.')
+    return null
   }
 
   return createClient(supabaseUrl, serviceKey, {

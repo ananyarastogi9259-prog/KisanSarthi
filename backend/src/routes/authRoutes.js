@@ -198,13 +198,15 @@ router.post('/confirm', async (req, res) => {
 
     if (isServiceRoleConfigured()) {
       const serviceClient = getServiceClient()
-      const { data: listData } = await serviceClient.auth.admin.listUsers()
-      const user = listData?.users?.find((u) => u.email?.toLowerCase() === cleanEmail)
+      if (serviceClient?.auth?.admin) {
+        const { data: listData } = await serviceClient.auth.admin.listUsers()
+        const user = listData?.users?.find((u) => u.email?.toLowerCase() === cleanEmail)
 
-      if (user) {
-        await serviceClient.auth.admin.updateUserById(user.id, {
-          email_confirm: true,
-        })
+        if (user) {
+          await serviceClient.auth.admin.updateUserById(user.id, {
+            email_confirm: true,
+          })
+        }
       }
     }
 

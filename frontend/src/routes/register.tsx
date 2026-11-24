@@ -180,7 +180,7 @@ function RegisterPage() {
             >
               <div className="flex items-center gap-2 font-semibold">
                 <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{error}</span>
+                <span>{cleanErrorMessage(error)}</span>
               </div>
               {missingList.length > 0 && (
                 <ul className="mt-2 list-disc list-inside space-y-1 text-xs font-medium pl-1">
